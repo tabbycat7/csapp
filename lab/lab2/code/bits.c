@@ -193,10 +193,8 @@ int getByte(int x, int n)
 {
   int b = 0xff;
   n = (n << 3);
-  b = b << n;
-  x = (x & b) >> n;
   // 特别注意右移的时候要使用无符号数
-  return x & 0xff;
+  return (x >> n) & 0xff;
 }
 /*
  * logicalShift - shift x to the right by n, using a logical shift
@@ -318,7 +316,6 @@ int negate(int x)
 {
   // very vital!
   return ~x + 1;
-  return 2;
 }
 /* howManyBits - return the minimum number of bits required to represent x in
  *             two's complement
@@ -481,7 +478,7 @@ int floatFloat2Int(unsigned uf)
 {
   unsigned int u = 0x1 << 31;
   unsigned sign = uf >> 31; // 符号位
-  unsigned int f = uf << 9 >> 9;
+  unsigned int f = uf << 9;
   unsigned iexp = uf << 1 >> 24;
   int i = 0;
   int result = 1; // 隐藏位1
@@ -494,7 +491,7 @@ int floatFloat2Int(unsigned uf)
   iexp = iexp - 127;
   result = result << iexp;
   i = iexp < 23 ? iexp : 23;
-  result = result | f >> (23 - i);
+  result = result | f >> (31 - iexp) >> 1;
   if (sign)
     result = ~result + 1;
   return result;
